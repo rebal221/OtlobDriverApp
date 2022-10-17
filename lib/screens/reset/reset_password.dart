@@ -1,11 +1,11 @@
 import 'package:driver_app/screens/reset/reset_password_step_three.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 
 import '../../value/colors.dart';
 import '../../widget/app_button.dart';
@@ -48,6 +48,9 @@ class _ResetPasswordState extends State<ResetPassword> {
     super.dispose();
   }
 
+  final _auth = FirebaseAuth.instance;
+  TextEditingController email = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     // SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
@@ -81,12 +84,13 @@ class _ResetPasswordState extends State<ResetPassword> {
         child: Column(
           // padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 16.w),
           children: [
+            Spacer(),
             Align(
               alignment: Alignment.center,
               child: AppTextStyle(
                 textAlign: TextAlign.center,
-                name: '''من فضلك أدخل رقم الهاتف المحمول
-ليصلك رمز الاستعادة''',
+                name: '''من فضلك أدخل بريدك الألكتروني
+ليصلك رابط الاستعادة''',
                 fontSize: 14.sp,
                 color: AppColors.black,
                 // fontWeight: FontWeight.w400,
@@ -97,16 +101,19 @@ class _ResetPasswordState extends State<ResetPassword> {
             ),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 30.w),
-              child: CardTemplateReset(
-                  // prefix: 'call',
-                  title: '123456789',
-                  controller: TextEditingController()),
+              child: CardTemplate(
+                  prefix: 'mail',
+                  title: 'البريد الإلكتروني',
+                  controller: email),
             ),
             Spacer(),
             AppButton(
-                title: 'التالي',
+                title: 'أرسال',
                 onPressed: () {
-                  Get.to(ResetPasswordStepThree());
+                  Get.to(() => ResetPasswordStepThree(),
+                      transition: Transition.fade,
+                      duration: Duration(milliseconds: 1000));
+                  _auth.sendPasswordResetEmail(email: email.text);
                 }),
           ],
         ),

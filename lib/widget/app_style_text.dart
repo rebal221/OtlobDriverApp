@@ -17,56 +17,49 @@ class AppTextStyle extends StatelessWidget {
   final TextDecoration decoration;
   final bool isMarai;
 
-  const AppTextStyle({Key? key,
-    this.color = Colors.white,
-    required this.name,
-     this.fontSize= 16,
-    this.fontWeight = FontWeight.bold,
-    this.decoration = TextDecoration.none,
-    this.count = 20,
-    this.letterSpacing = 1,
-    this.wordSpacing = 1,
-    this.maxLines = 1,
-    this.isMarai = true,
-    this.height = 1.5,
-    this.overflow = TextOverflow.ellipsis,
-    this.textAlign = TextAlign.start
-  }) : super(key: key);
+  const AppTextStyle(
+      {Key? key,
+      this.color = Colors.white,
+      required this.name,
+      this.fontSize = 16,
+      this.fontWeight = FontWeight.bold,
+      this.decoration = TextDecoration.none,
+      this.count = 20,
+      this.letterSpacing = 1,
+      this.wordSpacing = 1,
+      this.maxLines = 1,
+      this.isMarai = true,
+      this.height = 1.5,
+      this.overflow = TextOverflow.ellipsis,
+      this.textAlign = TextAlign.start})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Text(
-
-
       name,
       maxLines: count,
       overflow: TextOverflow.ellipsis,
       textAlign: textAlign,
-      style:isMarai?
-      GoogleFonts.almarai(
-
-
-          color: color,
-          // letterSpacing: letterSpacing,
-          // wordSpacing: wordSpacing,
-          fontWeight: fontWeight,
-          fontSize: fontSize.sp,
-          decoration: decoration,
-          height: height,
-
-      ):
-      GoogleFonts.cairo(
-
-          color: color,
-          // letterSpacing: letterSpacing,
-          // wordSpacing: wordSpacing,
-          fontWeight: fontWeight,
-          fontSize: fontSize.sp,
-          decoration: decoration,
-          height: height
-
-      ),
-
+      style: isMarai
+          ? GoogleFonts.almarai(
+              color: color,
+              // letterSpacing: letterSpacing,
+              // wordSpacing: wordSpacing,
+              fontWeight: fontWeight,
+              fontSize: fontSize.sp,
+              decoration: decoration,
+              // height: height,
+            )
+          : GoogleFonts.cairo(
+              color: color,
+              // letterSpacing: letterSpacing,
+              // wordSpacing: wordSpacing,
+              fontWeight: fontWeight,
+              fontSize: fontSize.sp,
+              decoration: decoration,
+              // height: height
+            ),
     );
   }
 }

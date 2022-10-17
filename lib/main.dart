@@ -20,6 +20,7 @@ import 'network/network_controller.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await AppPreferences().initPreferences();
+  await Firebase.initializeApp();
   runApp(const MyApp());
 }
 

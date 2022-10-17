@@ -1,4 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:driver_app/screens/welcom/splash_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -35,6 +37,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     // TODO: implement initState
+    user = _auth.currentUser;
     SystemChrome.setSystemUIOverlayStyle(
         SystemUiOverlayStyle(statusBarColor: AppColors.appColor));
     super.initState();
@@ -48,6 +51,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.dispose();
   }
 
+  final _auth = FirebaseAuth.instance;
+  User? user;
   @override
   Widget build(BuildContext context) {
     // SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
@@ -258,6 +263,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Divider(
                   height: 5.h,
                   color: AppColors.greyC,
+                ),
+                SizedBox(height: 20),
+                SizedBox(
+                  width: 130.w,
+                  child: AppButton(
+                    title: 'تسجيل خروج',
+                    onPressed: () {
+                      _auth
+                          .signOut()
+                          .then((value) => {
+                                print('Logout User'),
+                                Get.to(SplashScreen(),
+                                    transition: Transition.fade,
+                                    duration: Duration(milliseconds: 1000))
+                              })
+                          .onError((error, stackTrace) =>
+                              {print('Something is wrong')});
+                    },
+                    fontSize: 10.sp,
+                    color: AppColors.appColor,
+                    height: 26.h,
+                  ),
                 ),
               ],
             ),

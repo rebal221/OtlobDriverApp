@@ -1,4 +1,5 @@
 import 'package:driver_app/screens/Auth/sing_in.dart';
+import 'package:driver_app/screens/main/home_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -30,13 +31,22 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   void initState() {
-    // user = _auth.currentUser;
+    user = _auth.currentUser;
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
       statusBarColor: AppColors.black.withOpacity(.6),
     ));
     // TODO: implement initState
     Future.delayed(const Duration(seconds: 2), () {
-      Get.offAll(() => const SignIn());
+      // Get.offAll(() => const SignIn());
+      if (user != null) {
+        Get.to(() => HomePage(),
+            transition: Transition.fade,
+            duration: Duration(milliseconds: 1000));
+      } else {
+        Get.to(() => SignIn(),
+            transition: Transition.fade,
+            duration: Duration(milliseconds: 1000));
+      }
     });
 
     super.initState();

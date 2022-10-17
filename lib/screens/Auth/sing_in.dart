@@ -1,16 +1,15 @@
+import 'dart:async';
 import 'package:driver_app/screens/Auth/sign_up.dart';
 import 'package:driver_app/screens/main/home_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'package:rounded_loading_button/rounded_loading_button.dart';
+import '../../extensions.dart';
 import '../../value/colors.dart';
-import '../../widget/app_button.dart';
-import '../../widget/app_button_icon.dart';
 import '../../widget/app_style_text.dart';
 import '../../widget/card_template.dart';
 import '../../widget/custom_image.dart';
@@ -52,6 +51,10 @@ class _SignInState extends State<SignIn> {
     // ));
     super.dispose();
   }
+
+  bool isloading = false;
+  final RoundedLoadingButtonController _btnController2 =
+      RoundedLoadingButtonController();
 
   @override
   Widget build(BuildContext context) {
@@ -128,7 +131,9 @@ class _SignInState extends State<SignIn> {
                 ),
                 InkWell(
                   onTap: () {
-                    Get.to(ResetPassword());
+                    Get.to(() => ResetPassword(),
+                        transition: Transition.fade,
+                        duration: Duration(milliseconds: 1000));
                   },
                   child: Align(
                     alignment: AlignmentDirectional.centerEnd,
@@ -143,54 +148,31 @@ class _SignInState extends State<SignIn> {
                 SizedBox(
                   height: 19.h,
                 ),
-                AppButton(
-                    title: 'تسجيل دخول',
-                    onPressed: () async {
-                      try {
-                        final user = await _auth.signInWithEmailAndPassword(
-                            email: email.text, password: password.text);
-                        if (user != null) {
-                          print('Login successfully');
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            content: const Text(
-                              'اهلاً بعودتك',
-                              style: TextStyle(color: Colors.black),
-                            ),
-                            backgroundColor: AppColors.appColor2,
-                            behavior: SnackBarBehavior.floating,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            margin: EdgeInsets.only(
-                                bottom:
-                                    MediaQuery.of(context).size.height - 100,
-                                right: 20,
-                                left: 20),
-                          ));
-                          Get.to(HomePage());
-                        }
-                      } catch (e) {
-                        print(e);
-                        print('Login Faild');
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: const Text(
-                            'حدث خطأ ما, يرجى المحاولة مرة أخرى',
-                            style: TextStyle(
-                              color: Colors.white,
-                            ),
-                          ),
-                          backgroundColor: Color.fromARGB(255, 235, 48, 23),
-                          behavior: SnackBarBehavior.floating,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          margin: EdgeInsets.only(
-                              bottom: MediaQuery.of(context).size.height - 100,
-                              right: 20,
-                              left: 20),
-                        ));
-                      }
-                    }),
+                RoundedLoadingButton(
+                  color: AppColors.appColor,
+                  successColor: AppColors.green,
+                  controller: _btnController2,
+                  onPressed: () {
+                    _auth
+                        .signInWithEmailAndPassword(
+                            email: email.text, password: password.text)
+                        .then((value) => {
+                              print('User Login Success'),
+                              _btnController2.success(),
+                              Get.to(() => HomePage(),
+                                  transition: Transition.fade,
+                                  duration: Duration(milliseconds: 1000)),
+                            })
+                        .onError((error, stackTrace) => {
+                              showErrorBar(context,
+                                  'يرجى التحقق من البريد الألكتروني او كلمة السر'),
+                              _btnController2.reset()
+                            });
+                  },
+                  valueColor: Colors.black,
+                  borderRadius: 10,
+                  child: AppTextStyle(name: 'تسجيل الدخول'),
+                ),
                 SizedBox(
                   height: 30.h,
                 ),

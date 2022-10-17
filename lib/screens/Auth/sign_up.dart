@@ -6,9 +6,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:rounded_loading_button/rounded_loading_button.dart';
 
 // import 'package:otlob/screens/sing_in.dart';
 
+import '../../extensions.dart';
 import '../../value/colors.dart';
 import '../../widget/app_button.dart';
 import '../../widget/app_style_text.dart';
@@ -54,6 +56,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _auth = FirebaseAuth.instance;
   TextEditingController email = TextEditingController();
   TextEditingController password = TextEditingController();
+  bool isloading = false;
+  final RoundedLoadingButtonController _btnController2 =
+      RoundedLoadingButtonController();
 
   @override
   Widget build(BuildContext context) {
@@ -208,18 +213,31 @@ class _SignUpScreenState extends State<SignUpScreen> {
           // SizedBox(
           //   height: 25.h,
           // ),
-          AppButton(
-              title: 'انشاء حساب جديد',
-              onPressed: () async {
-                // Get.to(menu(currentItem: MenuItems.Home));
-                try {
-                  final newUser = await _auth.createUserWithEmailAndPassword(
-                      email: email.text, password: password.text);
-                  Get.to(Verfication());
-                } catch (e) {
-                  print(e);
-                }
-              }),
+          RoundedLoadingButton(
+            color: AppColors.appColor,
+            successColor: AppColors.green,
+            controller: _btnController2,
+            onPressed: () {
+              _auth
+                  .createUserWithEmailAndPassword(
+                      email: email.text, password: password.text)
+                  .then((value) => {
+                        print('User Rejester Success'),
+                        _btnController2.success(),
+                        Get.to(() => Verfication(),
+                            transition: Transition.fade,
+                            duration: Duration(milliseconds: 1000)),
+                      })
+                  .onError((error, stackTrace) => {
+                        showErrorBar(context,
+                            'يرجى التحقق من البريد الألكتروني او كلمة السر'),
+                        _btnController2.reset()
+                      });
+            },
+            valueColor: Colors.black,
+            borderRadius: 10,
+            child: AppTextStyle(name: 'أنشاء حساب جديد'),
+          ),
           SizedBox(
             height: 12.h,
           ),

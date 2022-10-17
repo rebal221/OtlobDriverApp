@@ -81,12 +81,13 @@ class _ResetPasswordStepThreeState extends State<ResetPasswordStepThree> {
         child: Column(
           // padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 16.w),
           children: [
+            Spacer(),
             Align(
               alignment: Alignment.center,
               child: AppTextStyle(
                 textAlign: TextAlign.center,
                 name:
-                    '''أدخل الرمز المرسل لرقم هاتفك المحمول +9701021225475 ''',
+                    'تم أرسال الرابط الى بريدك الألكتروني بنجاح يرجى أعادة تعيين كلمة السر و تسجيل الدخول مرة أخرى',
                 fontSize: 14.sp,
                 color: AppColors.black,
                 // fontWeight: FontWeight.w400,
@@ -95,50 +96,13 @@ class _ResetPasswordStepThreeState extends State<ResetPasswordStepThree> {
             SizedBox(
               height: 57.h,
             ),
-            Align(
-              alignment: AlignmentDirectional.topStart,
-              child: AppTextStyle(
-                textAlign: TextAlign.center,
-                name: 'كلمة السر الجديدة',
-                fontSize: 12.sp,
-                color: AppColors.black,
-                // fontWeight: FontWeight.w400,
-              ),
-            ),
-            SizedBox(
-              height: 7.h,
-            ),
-            CardTemplateTransparent(
-                suffix: Icons.visibility_off_sharp,
-                prefix: 'password',
-                title: 'كلمة السر الجديدة',
-                controller: TextEditingController()),
-            SizedBox(
-              height: 20.h,
-            ),
-            Align(
-              alignment: AlignmentDirectional.topStart,
-              child: AppTextStyle(
-                textAlign: TextAlign.center,
-                name: 'كلمة السر مرة أخرى',
-                fontSize: 12.sp,
-                color: AppColors.black,
-                // fontWeight: FontWeight.w400,
-              ),
-            ),
-            SizedBox(
-              height: 7.h,
-            ),
-            CardTemplateTransparent(
-                suffix: Icons.visibility_off_sharp,
-                prefix: 'password',
-                title: 'كلمة السر مرة أخرى',
-                controller: TextEditingController()),
             Spacer(),
             AppButton(
-                title: 'تأكيد كلمة السر',
+                title: 'تسجيل الدخول',
                 onPressed: () {
-                  Get.to(SignIn());
+                  Get.to(() => SignIn(),
+                      transition: Transition.fade,
+                      duration: Duration(milliseconds: 1000));
                 }),
           ],
         ),
