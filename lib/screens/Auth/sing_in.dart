@@ -153,21 +153,34 @@ class _SignInState extends State<SignIn> {
                   successColor: AppColors.green,
                   controller: _btnController2,
                   onPressed: () {
-                    _auth
-                        .signInWithEmailAndPassword(
-                            email: email.text, password: password.text)
-                        .then((value) => {
-                              print('User Login Success'),
-                              _btnController2.success(),
-                              Get.to(() => HomePage(),
-                                  transition: Transition.fade,
-                                  duration: Duration(milliseconds: 1000)),
-                            })
-                        .onError((error, stackTrace) => {
-                              showErrorBar(context,
-                                  'يرجى التحقق من البريد الألكتروني او كلمة السر'),
-                              _btnController2.reset()
-                            });
+                    String res = checklogin(email, password);
+                    if (res == 'Email_Error') {
+                      showErrorBar(context, 'يرجى التحقق من البريد الألكتروني');
+                      _btnController2.reset();
+                    } else if (res == 'Password_Error') {
+                      showErrorBar(context, 'يرجى التحقق من كلمة السر');
+                      _btnController2.reset();
+                    } else if (res == 'Email_ErrorPassword_Error') {
+                      showErrorBar(context,
+                          'يرجى التحقق من البريد الألكتروني و كلمة السر');
+                      _btnController2.reset();
+                    } else {
+                      _auth
+                          .signInWithEmailAndPassword(
+                              email: email.text, password: password.text)
+                          .then((value) => {
+                                print('User Login Success'),
+                                _btnController2.success(),
+                                Get.to(() => HomePage(),
+                                    transition: Transition.fade,
+                                    duration: Duration(milliseconds: 1000)),
+                              })
+                          .onError((error, stackTrace) => {
+                                showErrorBar(context,
+                                    CutFireBaseError(error.toString())),
+                                _btnController2.reset()
+                              });
+                    }
                   },
                   valueColor: Colors.black,
                   borderRadius: 10,

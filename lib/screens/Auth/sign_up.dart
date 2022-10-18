@@ -55,7 +55,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   final _auth = FirebaseAuth.instance;
   TextEditingController email = TextEditingController();
+  TextEditingController name = TextEditingController();
   TextEditingController password = TextEditingController();
+  TextEditingController phone = TextEditingController();
   bool isloading = false;
   final RoundedLoadingButtonController _btnController2 =
       RoundedLoadingButtonController();
@@ -109,6 +111,24 @@ class _SignUpScreenState extends State<SignUpScreen> {
             alignment: AlignmentDirectional.topStart,
             child: AppTextStyle(
               textAlign: TextAlign.center,
+              name: 'الاسم',
+              fontSize: 12.sp,
+              color: AppColors.black,
+              // fontWeight: FontWeight.w400,
+            ),
+          ),
+          SizedBox(
+            height: 7.h,
+          ),
+          CardTemplateTransparent(
+              prefix: 'person', title: 'الاسم', controller: name),
+          SizedBox(
+            height: 20.h,
+          ),
+          Align(
+            alignment: AlignmentDirectional.topStart,
+            child: AppTextStyle(
+              textAlign: TextAlign.center,
               name: 'البريد الالكتروني',
               fontSize: 12.sp,
               color: AppColors.black,
@@ -155,9 +175,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           //   height: 7.h,
           // ),
           // CardTemplatePhone(
-          //     prefix: 'call',
-          //     title: 'رقم الهاتف',
-          //     controller: TextEditingController()),
+          //     prefix: 'call', title: 'رقم الهاتف', controller: phone),
           // SizedBox(
           //   height: 13.h,
           // ),
@@ -218,21 +236,33 @@ class _SignUpScreenState extends State<SignUpScreen> {
             successColor: AppColors.green,
             controller: _btnController2,
             onPressed: () {
-              _auth
-                  .createUserWithEmailAndPassword(
-                      email: email.text, password: password.text)
-                  .then((value) => {
-                        print('User Rejester Success'),
-                        _btnController2.success(),
-                        Get.to(() => Verfication(),
-                            transition: Transition.fade,
-                            duration: Duration(milliseconds: 1000)),
-                      })
-                  .onError((error, stackTrace) => {
-                        showErrorBar(context,
-                            'يرجى التحقق من البريد الألكتروني او كلمة السر'),
-                        _btnController2.reset()
-                      });
+              String res = checklogin(email, password);
+              if (res == 'Email_Error') {
+                showErrorBar(context, 'يرجى التحقق من البريد الألكتروني');
+              } else if (res == 'Password_Error') {
+                showErrorBar(context,
+                    'يجب ان تكون كلمة السر تحتوي على أرقام و أشارات و أحرف كبيرة');
+              } else if (res == 'Email_ErrorPassword_Error') {
+                showErrorBar(
+                    context, 'يرجى التحقق من البريد الألكتروني و كلمة السر');
+              } else {
+                _auth
+                    .createUserWithEmailAndPassword(
+                        email: email.text, password: password.text)
+                    .then((value) => {
+                          print('User Rejester Success'),
+                          _auth.currentUser!.updateDisplayName(name.text),
+                          _btnController2.success(),
+                          Get.to(() => Verfication(),
+                              transition: Transition.fade,
+                              duration: Duration(milliseconds: 1000)),
+                        })
+                    .onError((error, stackTrace) => {
+                          showErrorBar(
+                              context, CutFireBaseError(error.toString())),
+                          _btnController2.reset()
+                        });
+              }
             },
             valueColor: Colors.black,
             borderRadius: 10,
