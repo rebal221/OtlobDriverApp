@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:driver_app/screens/Auth/sing_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
@@ -58,6 +59,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
   TextEditingController name = TextEditingController();
   TextEditingController password = TextEditingController();
   TextEditingController phone = TextEditingController();
+  TextEditingController nid = TextEditingController();
+  TextEditingController streetNum = TextEditingController();
+  TextEditingController cityName = TextEditingController();
   bool isloading = false;
   final RoundedLoadingButtonController _btnController2 =
       RoundedLoadingButtonController();
@@ -161,76 +165,73 @@ class _SignUpScreenState extends State<SignUpScreen> {
           SizedBox(
             height: 13.h,
           ),
-          // Align(
-          //   alignment: AlignmentDirectional.topStart,
-          //   child: AppTextStyle(
-          //     textAlign: TextAlign.center,
-          //     name: 'رقم الهاتف',
-          //     fontSize: 12.sp,
-          //     color: AppColors.black,
-          //     // fontWeight: FontWeight.w400,
-          //   ),
-          // ),
-          // SizedBox(
-          //   height: 7.h,
-          // ),
-          // CardTemplatePhone(
-          //     prefix: 'call', title: 'رقم الهاتف', controller: phone),
-          // SizedBox(
-          //   height: 13.h,
-          // ),
-
-          // Align(
-          //   alignment: AlignmentDirectional.topStart,
-          //   child: AppTextStyle(
-          //     textAlign: TextAlign.center,
-          //     name: 'رقم الهوية',
-          //     fontSize: 12.sp,
-          //     color: AppColors.black,
-          //     // fontWeight: FontWeight.w400,
-          //   ),
-          // ),
-          // SizedBox(
-          //   height: 7.h,
-          // ),
-          // CardTemplateTransparent(
-          //     prefix: 'password',
-          //     visible: false,
-          //     title: 'رقم الهوية',
-          //     controller: TextEditingController()),
-          // SizedBox(
-          //   height: 13.h,
-          // ),
-
-          // Align(
-          //   alignment: AlignmentDirectional.topStart,
-          //   child: AppTextStyle(
-          //     textAlign: TextAlign.center,
-          //     name: 'العنوان',
-          //     fontSize: 12.sp,
-          //     color: AppColors.black,
-          //     // fontWeight: FontWeight.w400,
-          //   ),
-          // ),
-          // SizedBox(
-          //   height: 7.h,
-          // ),
-          // CardTemplateTransparent(
-          //     prefix: 'map',
-          //     title: 'رقم الشارع والبناية',
-          //     controller: TextEditingController()),
-          // SizedBox(
-          //   height: 13.h,
-          // ),
-          // CardTemplateTransparent(
-          //     prefix: 'map',
-          //     title: 'المدينة',
-          //     visible: false,
-          //     controller: TextEditingController()),
-
-          // SizedBox(
-          //   height: 25.h,
-          // ),
+          Align(
+            alignment: AlignmentDirectional.topStart,
+            child: AppTextStyle(
+              textAlign: TextAlign.center,
+              name: 'رقم الهاتف',
+              fontSize: 12.sp,
+              color: AppColors.black,
+              // fontWeight: FontWeight.w400,
+            ),
+          ),
+          SizedBox(
+            height: 7.h,
+          ),
+          CardTemplatePhone(
+              prefix: 'call', title: 'رقم الهاتف', controller: phone),
+          SizedBox(
+            height: 13.h,
+          ),
+          Align(
+            alignment: AlignmentDirectional.topStart,
+            child: AppTextStyle(
+              textAlign: TextAlign.center,
+              name: 'رقم الهوية',
+              fontSize: 12.sp,
+              color: AppColors.black,
+              // fontWeight: FontWeight.w400,
+            ),
+          ),
+          SizedBox(
+            height: 7.h,
+          ),
+          CardTemplateTransparent(
+              prefix: 'password',
+              visible: false,
+              title: 'رقم الهوية',
+              controller: nid),
+          SizedBox(
+            height: 13.h,
+          ),
+          Align(
+            alignment: AlignmentDirectional.topStart,
+            child: AppTextStyle(
+              textAlign: TextAlign.center,
+              name: 'العنوان',
+              fontSize: 12.sp,
+              color: AppColors.black,
+              // fontWeight: FontWeight.w400,
+            ),
+          ),
+          SizedBox(
+            height: 7.h,
+          ),
+          CardTemplateTransparent(
+              prefix: 'map',
+              title: 'رقم الشارع والبناية',
+              controller: streetNum),
+          SizedBox(
+            height: 13.h,
+          ),
+          CardTemplateTransparent(
+              prefix: 'map',
+              title: 'المدينة',
+              visible: false,
+              controller: cityName),
+          SizedBox(
+            height: 25.h,
+          ),
           RoundedLoadingButton(
             color: AppColors.appColor,
             successColor: AppColors.green,
@@ -252,6 +253,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     .then((value) => {
                           print('User Rejester Success'),
                           _auth.currentUser!.updateDisplayName(name.text),
+                          createUser(
+                              user: _auth.currentUser!,
+                              email: email.text,
+                              name: name.text,
+                              nid: nid.text,
+                              phone: phone.text,
+                              city: cityName.text,
+                              street: streetNum.text),
                           _btnController2.success(),
                           Get.to(() => Verfication(),
                               transition: Transition.fade,

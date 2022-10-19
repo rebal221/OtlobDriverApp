@@ -1,4 +1,9 @@
+import 'dart:convert';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:driver_app/value/colors.dart';
+import 'package:driver_app/widget/app_button.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 showSuccessBar(context, message) {
@@ -73,4 +78,32 @@ CutFireBaseError(String err) {
   } else {
     return 'حدث خطأ ما يرجى المحاولة لاحقاً';
   }
+}
+
+Future createUser(
+    {required String name,
+    required String email,
+    required String nid,
+    required String street,
+    required String city,
+    required String phone,
+    required User user}) async {
+  final docUser =
+      FirebaseFirestore.instance.collection('drivers').doc(user.uid);
+
+  final json = {
+    'Name': name,
+    'Email': email,
+    'Img':
+        'https://firebasestorage.googleapis.com/v0/b/otlobdriverapp-dd897.appspot.com/o/DriverApp_Images%2Fuser-96.png?alt=media&token=63e4912c-705e-4dc0-9348-19837460a071',
+    'NID': nid,
+    'Phone': phone,
+    'StreetNumber': street,
+    'CityName': city,
+    'CarType': 'يرجى ادخال نوع المركبة',
+    'CarNumber': 'يرجى ادخال رقم المركبة',
+    'CarModel': 'يرجى ادخال موديل المركبة',
+  };
+
+  docUser.set(json);
 }

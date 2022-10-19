@@ -64,7 +64,7 @@ class _HomePageState extends State<HomePage> {
       padding: EdgeInsets.only(bottom: 5.h),
       decoration: BoxDecoration(
         color: AppColors.bottomNavigationColor,
-        borderRadius: BorderRadius.circular(10.r),
+        // borderRadius: BorderRadius.circular(10.r),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,

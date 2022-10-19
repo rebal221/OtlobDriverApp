@@ -12,13 +12,17 @@ class RowEdit extends StatelessWidget {
 
   String hint;
   bool visible;
-  bool enable ;
-  double fontSize ;
+  bool enable;
+  double fontSize;
+  final void Function() onPress;
 
-  RowEdit({
-    this.enable = true,
-    this.fontSize = 10,
-    this.visible = true, required this.title, required this.hint});
+  RowEdit(
+      {this.enable = true,
+      this.fontSize = 10,
+      this.visible = true,
+      required this.title,
+      required this.hint,
+      required this.onPress});
 
   @override
   Widget build(BuildContext context) {
@@ -36,20 +40,22 @@ class RowEdit extends StatelessWidget {
         ),
         Expanded(
           flex: 2,
-          child:
-          AppFieldNoBorder(
-                enable: enable,
-                hint: hint, controller:
-              TextEditingController(),),
+          child: AppFieldNoBorder(
+            enable: false,
+            hint: hint,
+            controller: TextEditingController(),
+          ),
         ),
         Visibility(
           visible: visible,
-          child: CustomSvgImage(
-            imageName: 'edit',
-            height: 11.h,
-            width: 11.h,
-            color: AppColors.white,
-
+          child: GestureDetector(
+            onTap: onPress,
+            child: CustomSvgImage(
+              imageName: 'edit',
+              height: 15.h,
+              width: 15.h,
+              color: AppColors.white,
+            ),
           ),
         )
       ],
