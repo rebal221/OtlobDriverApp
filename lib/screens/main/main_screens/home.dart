@@ -385,6 +385,7 @@ class _HomeState extends State<Home> {
                   child: currentLocation == null
                       ? const Center(child: Text("Loading"))
                       : GoogleMap(
+                          myLocationEnabled: true,
                           initialCameraPosition: CameraPosition(
                             target: LatLng(currentLocation!.latitude!,
                                 currentLocation!.longitude!),
