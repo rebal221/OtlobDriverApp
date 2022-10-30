@@ -69,8 +69,6 @@ extension PassWordValidation on String {
 CutFireBaseError(String err) {
   String test;
   test = err.toString().split(' ').elementAt(0);
-  print('222222222222222222222222222222222');
-  print(test);
   if (test == '[firebase_auth/email-already-in-use]') {
     return 'البريد الإلكتروني المقدم قيد الاستخدام بالفعل من قبل مستخدم حالي';
   } else if (test == '[firebase_auth/user-not-found]') {

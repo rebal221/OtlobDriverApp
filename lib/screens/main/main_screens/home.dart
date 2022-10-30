@@ -105,7 +105,6 @@ class _HomeState extends State<Home> {
       ),
     ),
   );
-
   LocationData? currentLocation;
   void getCurrentLocation() async {
     Location location = Location();
