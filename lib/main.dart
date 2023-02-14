@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:driver_app/preferences/app_preferences.dart';
+import 'package:driver_app/screens/main/main_screens/home.dart';
 import 'package:driver_app/screens/main/order/order_details_accept_map.dart';
 import 'package:driver_app/screens/main/order/order_details_map.dart';
 import 'package:driver_app/screens/main/order/order_details_multi.dart';
@@ -8,8 +9,10 @@ import 'package:driver_app/screens/main/order/order_details_one.dart';
 import 'package:driver_app/screens/welcom/splash_screen.dart';
 import 'package:driver_app/value/colors.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
@@ -35,6 +38,12 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     // TODO: implement initState
+
+    FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
     SystemChrome.setSystemUIOverlayStyle(
         SystemUiOverlayStyle(statusBarColor: AppColors.appColor));
     super.initState();

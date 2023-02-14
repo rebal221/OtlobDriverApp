@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:location/location.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
 
 // import 'package:otlob/screens/sing_in.dart';
@@ -41,6 +42,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   void initState() {
     // TODO: implement initState
+    _getUserLocation();
     SystemChrome.setSystemUIOverlayStyle(
         SystemUiOverlayStyle(statusBarColor: AppColors.appColor));
     super.initState();
@@ -54,6 +56,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
     super.dispose();
   }
 
+  late bool _serviceEnabled;
+  late PermissionStatus _permissionGranted;
+  LocationData? _userLocation;
   final _auth = FirebaseAuth.instance;
   TextEditingController email = TextEditingController();
   TextEditingController name = TextEditingController();
@@ -65,6 +70,35 @@ class _SignUpScreenState extends State<SignUpScreen> {
   bool isloading = false;
   final RoundedLoadingButtonController _btnController2 =
       RoundedLoadingButtonController();
+
+  Future<void> _getUserLocation() async {
+    Location location = Location();
+
+    // Check if location service is enable
+    _serviceEnabled = await location.serviceEnabled();
+    if (!_serviceEnabled) {
+      _serviceEnabled = await location.requestService();
+      if (!_serviceEnabled) {
+        return;
+      }
+    }
+
+    // Check if permission is granted
+    _permissionGranted = await location.hasPermission();
+    if (_permissionGranted == PermissionStatus.denied) {
+      _permissionGranted = await location.requestPermission();
+      if (_permissionGranted != PermissionStatus.granted) {
+        return;
+      }
+    }
+
+    final locationData = await location.getLocation();
+    if (mounted) {
+      setState(() {
+        _userLocation = locationData;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -240,12 +274,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
               String res = checklogin(email, password);
               if (res == 'Email_Error') {
                 showErrorBar(context, 'يرجى التحقق من البريد الألكتروني');
+                _btnController2.reset();
               } else if (res == 'Password_Error') {
                 showErrorBar(context,
                     'يجب ان تكون كلمة السر تحتوي على أرقام و أشارات و أحرف كبيرة');
+                _btnController2.reset();
               } else if (res == 'Email_ErrorPassword_Error') {
                 showErrorBar(
                     context, 'يرجى التحقق من البريد الألكتروني و كلمة السر');
+                _btnController2.reset();
               } else {
                 _auth
                     .createUserWithEmailAndPassword(
@@ -258,9 +295,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               email: email.text,
                               name: name.text,
                               nid: nid.text,
-                              phone: phone.text,
+                              phone: '+970' + phone.text,
                               city: cityName.text,
-                              street: streetNum.text),
+                              street: streetNum.text,
+                              Lat: _userLocation!.latitude,
+                              Long: _userLocation!.longitude),
                           _btnController2.success(),
                           Get.to(() => Verfication(),
                               transition: Transition.fade,

@@ -4,6 +4,7 @@ import 'package:driver_app/widget/row_icon.dart';
 import 'package:driver_app/widget/row_svg.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../value/colors.dart';
 import 'app_style_text.dart';
@@ -28,6 +29,7 @@ class ContainerListDetails extends StatelessWidget {
   String subYellow;
   String map;
   String price;
+  void Function() onPressedtow;
   void Function() onPressed;
 
   ContainerListDetails({
@@ -45,6 +47,7 @@ class ContainerListDetails extends StatelessWidget {
     required this.map,
     required this.price,
     required this.onPressed,
+    required this.onPressedtow,
   });
 
   @override
@@ -54,10 +57,10 @@ class ContainerListDetails extends StatelessWidget {
       child: AbsorbPointer(
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 10.h),
-          height: 170.h,
+          height: 400.h,
           decoration: BoxDecoration(borderRadius: BorderRadius.circular(8.r)),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SizedBox(
                 height: 45.h,
@@ -89,28 +92,31 @@ class ContainerListDetails extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 // mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  AppTextStyle(
-                    name: mainTitle,
-                    fontSize: 9.sp,
-                    color: AppColors.white,
-                    fontWeight: FontWeight.w500,
-                    isMarai: false,
+                  Container(
+                    width: 180,
+                    child: AppTextStyle(
+                      name: mainTitle,
+                      fontSize: 9.sp,
+                      overflow: TextOverflow.ellipsis,
+                      color: AppColors.white,
+                      fontWeight: FontWeight.w500,
+                      isMarai: false,
+                    ),
                   ),
                   SizedBox(
                     height: 5.h,
                   ),
-                  Row(
-                    children: [
-                      RowSvg(
-                          title: '${time} دقيقة',
-                          image: 'speed',
-                          color: AppColors.white),
-                      RowSvg(
-                          title: 'يبعد ${space} كلم',
-                          image: 'maps',
-                          color: AppColors.white),
-                    ],
+                  RowSvg(
+                      title: '${time} دقيقة',
+                      image: 'speed',
+                      color: AppColors.white),
+                  SizedBox(
+                    height: 5.h,
                   ),
+                  RowSvg(
+                      title: 'يبعد ${space} م',
+                      image: 'maps',
+                      color: AppColors.white),
                   SizedBox(
                     height: 5.h,
                   ),
@@ -128,7 +134,7 @@ class ContainerListDetails extends StatelessWidget {
                     Expanded(
                       child: AppButton(
                         title: 'تلقي الطلب',
-                        onPressed: () {},
+                        onPressed: onPressedtow,
                         fontSize: 8.sp,
                         color: AppColors.appColor2,
                         height: 30.h,
@@ -141,7 +147,7 @@ class ContainerListDetails extends StatelessWidget {
                     Expanded(
                       child: AppButton(
                         title: 'تفاصيل',
-                        onPressed: () {},
+                        onPressed: () async {},
                         fontSize: 8.sp,
                         color: AppColors.appColor,
                         height: 30.h,

@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:driver_app/preferences/app_preferences.dart';
+import 'package:driver_app/screens/main/main_screens/home.dart';
 import 'package:driver_app/screens/welcom/splash_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -117,25 +119,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.blackGrey.withOpacity(.70),
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: AppColors.appColor,
-        leadingWidth: 100.w,
-        leading: TextButton.icon(
-            onPressed: () {
-              Get.back();
-            },
-            icon: Icon(
-              Icons.keyboard_arrow_right,
-              color: Colors.white,
-              size: 25.r,
-            ),
-            label: AppTextStyle(
-              name: 'رجوع',
-              fontSize: 10.sp,
-            )),
-        actions: [],
-      ),
       body: ListView(
         children: [
           FutureBuilder<DocumentSnapshot>(
@@ -284,7 +267,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                           RowEdit(
                             title: 'عدد الطلبات',
-                            hint: '17 طلب',
+                            hint: '${data['OrderCount']} طلب',
+                            visible: false,
+                            onPress: () {},
+                          ),
+                          Divider(
+                            height: 5.h,
+                            color: AppColors.greyC,
+                          ),
+                          RowEdit(
+                            title: 'أجمالي الطلبات',
+                            hint: '${data['TotalPay']} شيكل',
                             visible: false,
                             onPress: () {},
                           ),
@@ -357,6 +350,50 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             height: 5.h,
                             color: AppColors.greyC,
                           ),
+                          Container(
+                            alignment: Alignment.center,
+                            height: (data['userRate'] == 'مستخدم مقبول')
+                                ? 55.h
+                                : 75.h,
+                            width: MediaQuery.of(context).size.width,
+                            decoration: BoxDecoration(
+                                color: (data['userRate'] == 'مستخدم جديد')
+                                    ? Color.fromARGB(113, 255, 210, 7)
+                                    : ((data['userRate'] == 'مستخدم مقبول')
+                                        ? Color.fromARGB(108, 40, 197, 45)
+                                        : Color.fromARGB(127, 244, 67, 54))),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                children: [
+                                  Icon(
+                                    (data['userRate'] == 'مستخدم جديد')
+                                        ? Icons.warning_amber_rounded
+                                        : ((data['userRate'] == 'مستخدم مقبول')
+                                            ? Icons.done
+                                            : Icons.do_disturb_on_outlined),
+                                    size: 25,
+                                    color: Colors.white,
+                                  ),
+                                  AppTextStyle(
+                                    height: 2,
+                                    textAlign: TextAlign.center,
+                                    name: (data['userRate'] == 'مستخدم جديد')
+                                        ? 'ملاحظة : لا يمكن استلام او توصيل الطلبات قبل الموافقة على حسابك'
+                                        : ((data['userRate'] == 'مستخدم مقبول')
+                                            ? 'تم توثيق الحساب'
+                                            : 'تم رفض حسابك يرجى التواصل مع فريق الدعم لمزيد من المعلومات Otlbapp07@Gmail.com '),
+                                    fontSize: 12.sp,
+                                    fontWeight: FontWeight.w300,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Divider(
+                            height: 5.h,
+                            color: AppColors.greyC,
+                          ),
                           SizedBox(height: 20),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -366,6 +403,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 child: AppButton(
                                   title: 'تسجيل خروج',
                                   onPressed: () {
+                                    AppPreferences().clear();
                                     _auth
                                         .signOut()
                                         .then((value) => {
@@ -392,11 +430,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 );
               }
 
-              return Align(
-                alignment: Alignment.center,
-                child: SpinKitThreeBounce(
-                  color: Colors.white,
-                  size: 50.0,
+              return Container(
+                height: MediaQuery.of(context).size.height - 200,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Align(
+                      alignment: Alignment.center,
+                      child: SpinKitThreeBounce(
+                        color: Colors.white,
+                        size: 50.0,
+                      ),
+                    ),
+                  ],
                 ),
               );
             },

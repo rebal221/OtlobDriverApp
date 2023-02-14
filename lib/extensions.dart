@@ -5,6 +5,7 @@ import 'package:driver_app/value/colors.dart';
 import 'package:driver_app/widget/app_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:latlong2/latlong.dart' as lat;
 
 showSuccessBar(context, message) {
   return ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -84,6 +85,8 @@ Future createUser(
     required String nid,
     required String street,
     required String city,
+    required double? Lat,
+    required double? Long,
     required String phone,
     required User user}) async {
   final docUser =
@@ -101,6 +104,10 @@ Future createUser(
     'CarType': 'يرجى ادخال نوع المركبة',
     'CarNumber': 'يرجى ادخال رقم المركبة',
     'CarModel': 'يرجى ادخال موديل المركبة',
+    'userRate': 'مستخدم جديد',
+    'OrderCount': 0,
+    'TotalPay': 0,
+    'driverLocation': GeoPoint(Lat!, Long!)
   };
 
   docUser.set(json);

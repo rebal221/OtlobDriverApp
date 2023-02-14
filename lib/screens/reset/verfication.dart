@@ -1,4 +1,5 @@
 import 'package:driver_app/screens/main/home_screen.dart';
+import 'package:driver_app/screens/main/main_screens/home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -44,16 +45,15 @@ class _VerficationState extends State<Verfication> {
   final TextEditingController _pinPutController = TextEditingController();
   final FocusNode _pinPutFocusNode = FocusNode();
   final defaultPinTheme = PinTheme(
-    width: 51.w,
-    height: 51.h,
-    textStyle: const TextStyle(
-        fontSize: 20, color: AppColors.greyF, fontWeight: FontWeight.w600),
+    width: 56,
+    height: 56,
+    textStyle: TextStyle(
+        fontSize: 20,
+        color: Color.fromRGBO(30, 60, 87, 1),
+        fontWeight: FontWeight.w600),
     decoration: BoxDecoration(
-      color: AppColors.greyF,
-      borderRadius: BorderRadius.circular(10.0),
-      border: Border.all(
-        color: AppColors.greyF,
-      ),
+      border: Border.all(color: Colors.black),
+      borderRadius: BorderRadius.circular(20),
     ),
   );
   @override
@@ -63,7 +63,7 @@ class _VerficationState extends State<Verfication> {
     // TODO: implement initState
     SystemChrome.setSystemUIOverlayStyle(
         SystemUiOverlayStyle(statusBarColor: AppColors.appColor));
-    vefriyEmail();
+    // vefriyEmail();
     super.initState();
     setState(() {
       isverfiyemail = user!.emailVerified;
@@ -76,7 +76,7 @@ class _VerficationState extends State<Verfication> {
       print('Verification email has been sent successfully');
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: const Text(
-          'تم ارسال ايميل التحقق بنجاح',
+          'تم ارسال كود التحقق بنجاح',
           style: TextStyle(color: Colors.black),
         ),
         backgroundColor: Color.fromARGB(255, 101, 250, 121),
@@ -153,39 +153,63 @@ class _VerficationState extends State<Verfication> {
             Spacer(),
             Align(
               alignment: Alignment.center,
-              child: Container(
-                width: 150,
-                height: 150,
-                child: Image.asset(
-                  'images/register_successfully.png',
-                  fit: BoxFit.cover,
-                ),
+              child: Icon(
+                Icons.done,
+                color: Colors.green.shade400,
+                size: 75.sp,
               ),
             ),
             Align(
               alignment: Alignment.center,
               child: AppTextStyle(
                 textAlign: TextAlign.center,
-                name: 'شكراً لك\nيرجى التحقق من بريدك الألكتروني',
+                name: 'مرحباً ${''}\nتم تسجيل الحساب بنجاح ',
                 fontSize: 14.sp,
                 color: AppColors.black,
                 // fontWeight: FontWeight.w400,
               ),
             ),
+
             SizedBox(
               height: 40.h,
             ),
+            // Spacer(),
+            // Align(
+            //   alignment: Alignment.center,
+            //   child: Container(
+            //     width: 150,
+            //     height: 150,
+            //     child: Image.asset(
+            //       'images/register_successfully.png',
+            //       fit: BoxFit.cover,
+            //     ),
+            //   ),
+            // ),
+            // Align(
+            //   alignment: Alignment.center,
+            //   child: AppTextStyle(
+            //     textAlign: TextAlign.center,
+            //     name: 'شكراً لك\nيرجى التحقق من بريدك الألكتروني',
+            //     fontSize: 14.sp,
+            //     color: AppColors.black,
+            //     // fontWeight: FontWeight.w400,
+            //   ),
+            // ),
             SizedBox(
               height: 20,
             ),
             // Pinput(
-            //   length: 4,
-            //   errorTextStyle:
-            //       const TextStyle(fontSize: 25.0, color: Colors.white),
+            //   length: 6,
+            //   errorTextStyle: const TextStyle(
+            //       fontSize: 25.0, color: Color.fromARGB(255, 15, 15, 15)),
             //   focusNode: _pinPutFocusNode,
             //   controller: _pinPutController,
+
             //   // eachFieldWidth: 40.0,
             //   // eachFieldHeight: 55.0,
+            //   pinputAutovalidateMode: PinputAutovalidateMode.onSubmit,
+            //   androidSmsAutofillMethod:
+            //       AndroidSmsAutofillMethod.smsUserConsentApi,
             //   submittedPinTheme: defaultPinTheme,
             //   focusedPinTheme: defaultPinTheme,
             //   followingPinTheme: defaultPinTheme,
@@ -197,10 +221,10 @@ class _VerficationState extends State<Verfication> {
             //       //     verificationId: _verificationCode, smsCode: pin))
             //       //     .then((value) async {
             //       //   if (value.user != null) {
-            //       //     // Navigator.pushAndRemoveUntil(
-            //       //     //     context,
-            //       //     //     MaterialPageRoute(builder: (context) => Home()),
-            //       //     //         (route) => false);
+            //       Navigator.pushAndRemoveUntil(
+            //           context,
+            //           MaterialPageRoute(builder: (context) => Home()),
+            //           (route) => false);
             //       //   }
             //       // });
             //     } catch (e) {
@@ -209,9 +233,9 @@ class _VerficationState extends State<Verfication> {
             //     }
             //   },
             // ),
-            SizedBox(
-              height: 5.h,
-            ),
+            // SizedBox(
+            //   height: 5.h,
+            // ),
             // Align(
             //   alignment: Alignment.center,
             //   child: Row(

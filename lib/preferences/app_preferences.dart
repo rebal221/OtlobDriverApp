@@ -1,5 +1,3 @@
-
-
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -17,6 +15,11 @@ class AppPreferences with Helpers {
 
   Future<void> initPreferences() async {
     _sharedPreferences = await SharedPreferences.getInstance();
+  }
+
+  Future<void> clear() async {
+    _sharedPreferences = await SharedPreferences.getInstance();
+    _sharedPreferences.clear();
   }
 
   Future<void> setFCM(String fcm) async {
@@ -74,7 +77,6 @@ class AppPreferences with Helpers {
     return _sharedPreferences.getStringList(key) ?? [];
   }
 
-
   Future<void> setDataBool({required String key, required bool value}) async {
     await _sharedPreferences.setBool(key, value);
   }
@@ -105,8 +107,6 @@ class AppPreferences with Helpers {
   }
 
   String get accountType => _sharedPreferences.getString("type") ?? "";
-
-
 }
 
 class AppPrefKey {

@@ -26,7 +26,7 @@ class RowAll extends StatelessWidget {
           fontWeight: FontWeight.w400,
         ),
         SizedBox(
-          width: 40.w,
+          width: 10.w,
         ),
         InkWell(
           onTap: onPressed,

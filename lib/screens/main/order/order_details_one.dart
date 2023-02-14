@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:driver_app/value/constant.dart';
 import 'package:driver_app/widget/app_button.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,7 +13,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:loader_overlay/loader_overlay.dart';
+import 'package:location/location.dart';
 import 'package:lottie/lottie.dart';
 // import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -21,7 +26,7 @@ import 'package:lottie/lottie.dart';
 import 'package:pinput/pinput.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:timer_count_down/timer_count_down.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:latlong2/latlong.dart' as lat;
 
 import '../../../value/colors.dart';
 import '../../../widget/app_style_text.dart';
@@ -44,8 +49,27 @@ import 'order_details_multi.dart';
 // import '../Auth/sing_in.dart';
 
 class OrderDetailsOne extends StatefulWidget {
-  const OrderDetailsOne({Key? key}) : super(key: key);
-
+  const OrderDetailsOne(
+      {Key? key,
+      required this.pos,
+      required this.ClientID,
+      required this.OrderID,
+      required this.resID,
+      required this.destince,
+      required this.driverlat,
+      required this.driverlong,
+      required this.clienrlat,
+      required this.clienrlong})
+      : super(key: key);
+  final GeoPoint pos;
+  final String ClientID;
+  final String OrderID;
+  final double driverlat;
+  final double driverlong;
+  final double clienrlat;
+  final double clienrlong;
+  final String resID;
+  final String destince;
   @override
   State<OrderDetailsOne> createState() => _OrderDetailsOneState();
 }
@@ -63,34 +87,36 @@ class _OrderDetailsOneState extends State<OrderDetailsOne> {
         context, MaterialPageRoute(builder: (context) => const SignIn()));
   }
 
-  static const distanceFilters = [0, 5, 10, 30, 50];
-  int _selectedIndex = 0;
+  LocationData? currentLocation;
+  final Completer<GoogleMapController> _controller = Completer();
+  void getCurrentLocation() async {
+    Location location = Location();
+    location.getLocation().then(
+      (location) {
+        currentLocation = location;
+      },
+    );
+    GoogleMapController googleMapController = await _controller.future;
+    location.onLocationChanged.listen(
+      (newLoc) {
+        currentLocation = newLoc;
+        googleMapController.animateCamera(
+          CameraUpdate.newCameraPosition(
+            CameraPosition(
+              zoom: 13.5,
+              target: LatLng(
+                newLoc.latitude!,
+                newLoc.longitude!,
+              ),
+            ),
+          ),
+        );
+        setState(() {});
+      },
+    );
+  }
 
-  // Completer<GoogleMapController> _controller = Completer();
-
-  // static final CameraPosition _kGooglePlex = CameraPosition(
-  //   target: LatLng(37.42796133580664, -122.085749655962),
-  //   zoom: 14.4746,
-  // );
-
-  // Set<Circle> circles = Set.from([Circle(
-  //   circleId: CircleId('1'),
-  //     fillColor: AppColors.appColor,
-  //   center: LatLng(37.43296265331129, -122.08832357078792),
-  //   radius: 4000,
-  //
-  // )]);
   LatLng latLng = LatLng(31.524574924915523, 34.448129281505175);
-
-  // static final CameraPosition _kLake = CameraPosition(
-  //     bearing: 192.8334901395799,
-  //     target: LatLng(37.43296265331129, -122.08832357078792),
-  //     tilt: 59.440717697143555,
-  //     zoom: 19.151926040649414);
-  final GlobalKey<ScaffoldState> _scaffoldkey = GlobalKey<ScaffoldState>();
-  late String _verificationCode;
-  final TextEditingController _pinPutController = TextEditingController();
-  final FocusNode _pinPutFocusNode = FocusNode();
   final defaultPinTheme = PinTheme(
     width: 51.w,
     height: 51.h,
@@ -156,115 +182,192 @@ class _OrderDetailsOneState extends State<OrderDetailsOne> {
             ),
           ),
           // leading: MenuWidget(),
-          actions: [
-            CustomSvgImage(
-              imageName: 'notification',
-              color: AppColors.white,
-              width: 16.w,
-              height: 17.h,
-            ),
-            SizedBox(
-              width: 20.w,
-            ),
-          ],
+
           backgroundColor: AppColors.appColor,
           title: Text(''.tr),
         ),
-        body: ListView(
-          shrinkWrap: true,
-          // physics: NeverScrollableScrollPhysics(),
-          padding: EdgeInsets.symmetric(vertical: 0.h),
-          children: [
-            ListView(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 16.w),
-              children: [
-                SizedBox(
-                  height: 10.h,
-                ),
-                Row(
-                  children: [
-                    AppTextStyle(
-                      name: 'توصيل طلب واحد',
-                      fontSize: 12.sp,
-                    ),
-                    Spacer(),
-                    AppTextStyle(
-                      name: 'رقم الطلب',
-                      fontSize: 6.sp,
-                    ),
-                    SizedBox(width:5.w,),
-                    SizedBox(
-                      width: 80.w,
-                      child: AppButton(
-                        fontSize: 10.sp,
-                        title: '#2578921',
-                        onPressed: () {},
-                        color: AppColors.appColor,
-                        height: 25.h,
+        body: StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection('restaurant')
+              .where('uid', isEqualTo: widget.resID)
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              Map data = snapshot.data!.docs[0].data() as Map;
+              return ListView(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 16.w),
+                children: [
+                  SizedBox(
+                    height: 10.h,
+                  ),
+                  Row(
+                    children: [
+                      AppTextStyle(
+                        name: 'توصيل طلب واحد',
+                        fontSize: 12.sp,
                       ),
-                    )
-                  ],
-                ),
-                SizedBox(
-                  height: 10.h,
-                ),
-                ListView.separated(
-                    shrinkWrap: true,
-                    itemBuilder: (context, index) {
-                      return Container(
-                          height: 220.h,
-                          decoration: BoxDecoration(
-                            color: AppColors.greyF6,
-                            borderRadius: BorderRadius.circular(8.r),
-                          ),
-                          child: ContainerOrderDetails(
+                      Spacer(),
+                      SizedBox(
+                        width: 180.w,
+                        child: AppButton(
+                          fontSize: 8.sp,
+                          title: '${widget.OrderID}',
+                          onPressed: () {},
+                          color: AppColors.appColor,
+                          height: 25.h,
+                        ),
+                      )
+                    ],
+                  ),
+                  SizedBox(
+                    height: 10.h,
+                  ),
+                  ListView.separated(
+                      shrinkWrap: true,
+                      itemBuilder: (context, index) {
+                        return Container(
+                            height: 500.h,
+                            decoration: BoxDecoration(
+                              color: AppColors.greyF6,
+                              borderRadius: BorderRadius.circular(8.r),
+                            ),
+                            child: StreamBuilder<QuerySnapshot>(
+                              stream: FirebaseFirestore.instance
+                                  .collection('orders')
+                                  .snapshots(),
+                              builder: (context, a) {
+                                if (a.hasData) {
+                                  List order = [];
+                                  List k = [];
+                                  for (var i = 0;
+                                      i < a.data!.docs.length;
+                                      i++) {
+                                    Map e = a.data!.docs[i].data() as Map;
+                                    e.forEach((key, value) {
+                                      if (key == widget.OrderID) {
+                                        order += [value];
+                                        k += [key];
+                                      }
+                                    });
+                                  }
+                                  String driverid = order[0]['DiverID'] == null
+                                      ? ''
+                                      : order[0]['DiverID'];
+                                  return ContainerOrderDetails(
+                                    driverid: driverid,
+                                    clienrlat: widget.clienrlat,
+                                    onPressedAcceptDone: () {
+                                      FirebaseFirestore.instance
+                                          .collection('orders')
+                                          .doc(order[0]['clientID'])
+                                          .set({
+                                        k[index]: {
+                                          'orderStatus': 'IsDone',
+                                        }
+                                      }, SetOptions(merge: true)).then((value) {
+                                        FirebaseFirestore.instance
+                                            .collection('drivers')
+                                            .doc(FirebaseAuth
+                                                .instance.currentUser!.uid)
+                                            .get()
+                                            .then((value) {
+                                          Map driver = value.data() as Map;
+                                          FirebaseFirestore.instance
+                                              .collection('drivers')
+                                              .doc(FirebaseAuth
+                                                  .instance.currentUser!.uid)
+                                              .set({
+                                            'OrderCount':
+                                                driver['OrderCount'] + 1,
+                                            'TotalPay': driver['OrderCount'] +
+                                                order[0]['totalOrder'],
+                                          }, SetOptions(merge: true));
+                                        });
+                                        driverid = 'done';
+                                        getSheetSucsses('تم تسليم الطلب');
+                                      });
+                                    },
+                                    clienrlong: widget.clienrlong,
+                                    driverlat: widget.driverlat,
+                                    driverlong: widget.driverlong,
+                                    visible: true,
+                                    name: '${order[0]['clientName']}',
+                                    phone: '${order[0]['clientPhone']}',
+                                    address: '${order[0]['postionName']}',
+                                    mainImage: data['images'][0],
+                                    secondImage: data['images'][2],
+                                    mainTitle: data['name'],
+                                    time: 'يجب توصيله خلال 25 - 30 ',
+                                    space: widget.destince,
+                                    rate: '22-05-2022   10:45 مساء',
+                                    mainGreen: 'التوصيل مجانا',
+                                    subGreen: 'لفترة محدودة',
+                                    mainYellow: '45',
+                                    subYellow: 'خصم على كل الطلبات',
+                                    map: 'أبو مازن السوري',
+                                    price: '${order[0]['totalOrder']}',
+                                    onPressed: () {},
+                                    onPressedAccept: () async {
+                                      context.loaderOverlay
+                                          .show(widget: ReconnectingOverlay());
+                                      FirebaseFirestore.instance
+                                          .collection('drivers')
+                                          .doc(FirebaseAuth
+                                              .instance.currentUser!.uid)
+                                          .get()
+                                          .then((value) {
+                                        Map e = value.data() as Map;
+                                        if (e['userRate'] == 'مستخدم مقبول') {
+                                          FirebaseFirestore.instance
+                                              .collection('orders')
+                                              .doc(widget.ClientID)
+                                              .set({
+                                            widget.OrderID: {
+                                              'orderStatus': 'DriverAccept',
+                                              'DiverID': FirebaseAuth
+                                                  .instance.currentUser!.uid,
+                                            }
+                                          }, SetOptions(merge: true));
+                                        } else if (e['userRate'] ==
+                                            'مستخدم مرفوض') {
+                                          getSheetError(
+                                              'تم رفض الحساب لا يمكن استلام الطلب');
+                                        } else if (e['userRate'] ==
+                                            'مستخدم جديد') {
+                                          getSheetError(
+                                              'لا يمكن استلام الطلب قبل الموافقة على الحساب');
+                                        }
+                                      });
 
-                              visible: true,
-                              mainImage:
-                                  'https://img.freepik.com/premium-vector/restaurant-logo-design-template_79169-56.jpg?w=2000',
-                              secondImage:
-                                  'https://img.freepik.com/premium-vector/restaurant-logo-design-template_79169-56.jpg?w=2000',
-                              mainTitle: 'مطبخ الشام للفطائر الجاهزة ',
-                              time: 'يجب توصيله خلال 25 - 30 ',
-                              space: '5.2',
-                              rate: '22-05-2022   10:45 مساء',
-                              mainGreen: 'التوصيل مجانا',
-                              subGreen: 'لفترة محدودة',
-                              mainYellow: '45',
-                              subYellow: 'خصم على كل الطلبات',
-                              map: 'أبو مازن السوري',
-                              price: '78',
-                              onPressed: () {
-
-
-                              }, onPressedAccept: ()async {
-
-                            context.loaderOverlay
-                                .show(widget: ReconnectingOverlay());
-
-                            await Future.delayed(Duration(seconds: 5),(){
-                              context.loaderOverlay
-                                  .hide();
-
-                              Get.to(OrderDetailsAccept(isDone: true,));
-                            });
-                          }, onPressedCancel: () {
-                            Get.back();
-                          },));
-                    },
-                    separatorBuilder: (context, index) {
-                      return SizedBox(
-                        height: 16.h,
-                      );
-                    },
-                    itemCount: 1),
-
-
-              ],
-            ),
-          ],
+                                      await Future.delayed(Duration(seconds: 3),
+                                          () {
+                                        context.loaderOverlay.hide();
+                                      });
+                                    },
+                                    onPressedCancel: () {
+                                      Get.back();
+                                    },
+                                  );
+                                } else {
+                                  return Text("No data");
+                                }
+                              },
+                            ));
+                      },
+                      separatorBuilder: (context, index) {
+                        return SizedBox(
+                          height: 16.h,
+                        );
+                      },
+                      itemCount: 1),
+                ],
+              );
+            } else {
+              return Text("");
+            }
+          },
         ),
       ),
     );
@@ -290,25 +393,26 @@ Widget shimmerCarDesA(BuildContext context) {
 class ReconnectingOverlay extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Center(
-    child: Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        SizedBox(
-            height: 150.h,
-            child:Lottie.network(
-                'https://assets5.lottiefiles.com/packages/lf20_usmfx6bp.json')),
-        AppTextStyle(
-          textAlign: TextAlign.center,
-          fontSize: 15.sp,
-          height: 2,
-          name:  '''برجاء الانتظار
-جاري تأكيد الطلب''',color: Colors.white,),
-        // Text(
-        //
-        //   ' ... جاري التحميل',
-        // ),
-      ],
-    ),
-  );
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+                height: 150.h,
+                child: Lottie.network(
+                    'https://assets5.lottiefiles.com/packages/lf20_usmfx6bp.json')),
+            AppTextStyle(
+              textAlign: TextAlign.center,
+              fontSize: 15.sp,
+              height: 2,
+              name: '''برجاء الانتظار
+جاري تأكيد الطلب''',
+              color: Colors.white,
+            ),
+            // Text(
+            //
+            //   ' ... جاري التحميل',
+            // ),
+          ],
+        ),
+      );
 }
-
